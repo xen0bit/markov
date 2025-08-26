@@ -265,7 +265,19 @@ SELECT
 	1 AS from_state1,
 	2 AS from_state2,
 	--lol you can use printf in sqlite?
-	CAST(printf('%d,%d', 1, 2) AS TEXT) AS sequence,
+	((
+	SELECT
+		name
+	from
+		states
+	WHERE
+		id = 1) || ' ' || (
+	SELECT
+		name
+	from
+		states
+	WHERE
+		id = 2)) AS sequence,
 	1 AS step
 UNION ALL
 -- recursive step here, pick next state based on transition_probabilities from last two states
@@ -296,38 +308,44 @@ SELECT
 		cumu
 	LIMIT 1
     ) AS from_state2,
-	-- append the chosen next state to the sequence string
-    sequence || ',' || (
+	-- append the chosen next state to the sequence string using the probability view
+    sequence || ' ' || (
 	SELECT
-		to_state
+		name
 	FROM
-		(
-		SELECT
-			to_state,
-			probability,
-			SUM(probability) OVER (
-		ORDER BY
-			probability DESC,
-			to_state) AS cumu
-		FROM
-			transition_probabilities
-		WHERE
-			from_state1 = chain.from_state1
-			AND from_state2 = chain.from_state2
-                        )
+		states
 	WHERE
-		cumu >= (ABS(RANDOM()) / 9223372036854775807.0)
-	ORDER BY
-		cumu
-	LIMIT 1
-                       ),
+		id = (
+		SELECT
+			to_state
+		FROM
+			(
+			SELECT
+				to_state,
+				probability,
+				SUM(probability) OVER (
+			ORDER BY
+				probability DESC,
+				to_state) AS cumu
+			FROM
+				transition_probabilities
+			WHERE
+				from_state1 = chain.from_state1
+				AND from_state2 = chain.from_state2
+                        )
+		WHERE
+			cumu >= (ABS(RANDOM()) / 9223372036854775807.0)
+		ORDER BY
+			cumu
+		LIMIT 1
+                       )),
 	step + 1
 FROM
 	chain
 WHERE
 	-- CONFIGME
 	-- should match step size below, max length of chain
-	step < 8
+	step < 100
 )
 SELECT
 	sequence

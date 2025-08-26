@@ -1,0 +1,7 @@
+INSERT
+	OR IGNORE
+INTO
+	states (name)
+VALUES
+-- CONFIGME
+(?);
