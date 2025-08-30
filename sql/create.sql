@@ -16,3 +16,9 @@ to_state),
   FOREIGN KEY (from_state2) REFERENCES states(id),
   FOREIGN KEY (to_state) REFERENCES states(id)
 );
+
+/**
+CREATE INDEX IF NOT EXISTS idx_state_id ON states (id);
+CREATE INDEX IF NOT EXISTS idx_state_name ON states (name);
+CREATE INDEX IF NOT EXISTS idx_transitions ON transitions (from_state1, from_state2, to_state);
+**/
