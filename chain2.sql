@@ -2,8 +2,8 @@ WITH RECURSIVE
 chain(from_state1, from_state2, sequence, step) AS (
 -- start from initial state pair (1, 2) -> ('the', 'quick'), sequence as text and step 1
 SELECT
-	15 AS from_state1,
-	1 AS from_state2,
+	1 AS from_state1,
+	2 AS from_state2,
 	--lol you can use printf in sqlite?
 	((
 	SELECT
@@ -11,13 +11,13 @@ SELECT
 	from
 		states
 	WHERE
-		id = 15) || ' ' || (
+		id = 1) || ' ' || (
 	SELECT
 		name
 	from
 		states
 	WHERE
-		id = 1)) AS sequence,
+		id = 2)) AS sequence,
 	1 AS step
 UNION ALL
 -- recursive step here, pick next state based on transition_probabilities from last two states
@@ -85,7 +85,7 @@ FROM
 WHERE
 	-- CONFIGME
 	-- should match step size below, max length of chain
-	step < 128
+	step < 512
 )
 SELECT
 	sequence
